@@ -1,0 +1,23 @@
+@import "bootstrap";
+@import "bootstrap/theme";
+
+tr.no-items td {
+    text-align: center;
+    font-style: italic;
+}
+
+.contact-list-buttons {
+    text-align: right;
+}
+
+#contactsList tbody td {
+    vertical-align: middle;
+}
+
+.add-contact-big {
+    text-align: center;
+
+    .btn {
+        margin: 10px auto;
+    }
+}

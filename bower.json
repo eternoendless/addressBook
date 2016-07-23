@@ -1,0 +1,20 @@
+{
+  "name": "address-book",
+  "homepage": "https://github.com/eternoendless/addressBook",
+  "authors": [
+    "Pablo Borowicz <eternoendless@gmail.com>"
+  ],
+  "description": "A sample address book",
+  "main": "index.html",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "bootstrap-sass-official": "3",
+    "handlebars": "^4.0.5",
+    "jquery": "~2",
+    "bootstrap-validator": "^0.11.5"
+  },
+  "devDependencies": {
+    "jquery-confirm2": "craftpip/jquery-confirm#^2.5.1"
+  }
+}
