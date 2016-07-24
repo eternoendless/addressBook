@@ -9,7 +9,7 @@ var Router = require('navigo');
 module.exports = class AddressBookApp {
 
     /**
-     * @param {ContactCollection} contacts A collection of contacts
+     * @param {ContactCollection} contacts The contacts collection
      */
     constructor(contacts) {
         /**
@@ -18,12 +18,12 @@ module.exports = class AddressBookApp {
          */
         this.contacts = contacts;
         /**
-         * The current instance of ContactsListController
+         * Controller that manages the contacts list
          * @type {ContactsListController|null}
          */
         this.contactsListController = null;
         /**
-         * The current instance of ContactEditingController
+         * Controller that manages contact editing
          * @type {ContactEditingController|null}
          */
         this.contactEditingController = null;
@@ -71,7 +71,8 @@ module.exports = class AddressBookApp {
      */
     _getContactsListController() {
         if (!this.contactsListController) {
-            this.contactsListController = new ContactsListController(this, this.contacts);
+            // initialize the controller
+            this.contactsListController = new ContactsListController(this.contacts);
             this.contactsListController.event
                 .on('addContact', param => {
                     this.router.navigate('/new');
@@ -92,7 +93,8 @@ module.exports = class AddressBookApp {
      */
     _getContactEditingController() {
         if (!this.contactEditingController) {
-            this.contactEditingController = new ContactEditingController(this, this.contacts, null);
+            // initialize the controller
+            this.contactEditingController = new ContactEditingController(this.contacts);
             this.contactEditingController.event
                 .on('cancel', param => {
                     this.router.navigate('/');
@@ -110,7 +112,6 @@ module.exports = class AddressBookApp {
      * @private
      */
     _setupRoutes() {
-
         this.router = new Router(null, true);
 
         this.router

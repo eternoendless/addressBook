@@ -1,31 +1,42 @@
 var cfg = require('../cfg');
 var ContactsList = require('../components/ContactsList');
+var Search = require('../components/Search');
 var EventEmitter = require('event-emitter');
 
 /**
  * Manages the contacts list page
- * @type {ContactsListPage}
+ * @type {ContactsListController}
  */
 module.exports = class ContactsListController {
 
     /**
      *
-     * @param {AddressBookApp} app
      * @param {ContactCollection} contacts
      */
-    constructor(app, contacts) {
-        this.app = app;
-        this.contacts = contacts;
-        this.contactListPageName = 'contactsList/view';
-        this.event = EventEmitter();
-
+    constructor(contacts) {
         /**
-         *
+         * The contacts list
+         * @type {ContactCollection}
+         */
+        this.contacts = contacts;
+        /**
+         * Name of the contacts list view
+         * @type {string}
+         */
+        this.contactListPageName = 'contactsList/view';
+        /**
+         * Event manager
+         * @type {EventEmitter}
+         */
+        this.event = new EventEmitter();
+        /**
+         * Contacts list component
          * @type {ContactsList}
          */
         this.contactsList = null;
 
-        $(cfg.pageContentId).delegate('#contactList-addContactButton', 'click', $e => {
+        // watch for click event on the big "add contact" button
+        $(cfg.pageContentId).delegate('#contactList-addContactButton', 'click', evt => {
             this.event.emit('addContact');
         });
     }
@@ -39,10 +50,17 @@ module.exports = class ContactsListController {
     }
 
     /**
-     * Executed
+     * Invoked when the contacts list view has been loaded
      * @private
      */
     _onContactListViewLoaded() {
+        // reset search
+        this.search = new Search('#search', this.contacts);
+        this.search.reset();
+        this.search.event.on('change', evt => {
+            this.contactsList.draw();
+        });
+
         if (!this.contactsList) {
             // create the list component
             this.contactsList = new ContactsList(this.contacts);
@@ -53,8 +71,8 @@ module.exports = class ContactsListController {
             ;
 
         } else {
-            // refresh list
-            this.contactsList.draw();
+            // draw list
+            this.contactsList.draw(true);
         }
     }
 
@@ -73,11 +91,10 @@ module.exports = class ContactsListController {
      * @private
      */
     _deleteContact(contactId) {
-        console.log('delete');
         if (!this.contacts.remove(contactId)) {
             throw new Error("Unable to delete contact #" + contactId + " because it could not be found");
         } else {
-            // refresh list
+            // update list
             this.contactsList.draw();
         }
     }

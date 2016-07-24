@@ -1,6 +1,5 @@
 var cfg = require('../cfg');
 var EventEmitter = require('event-emitter');
-var CountryList = require('country-list');
 
 /**
  * Manages a list (table) of contacts
@@ -19,33 +18,37 @@ module.exports = class ContactsList {
          */
         this.contacts = contacts;
         /**
+         * Id of the list container
+         * @type {string}
+         */
+        this.containerId = '#contactsList';
+        /**
          * The handlebars template for list items
          * @type {Function}
          */
-        this.itemTpl = '';
+        this.itemTpl = null;
         /**
          * Template to use when there are no items
-         * @type {string}
+         * @type {Function}
          */
-        this.noItemsTpl = '<tr class="no-items"><td colspan="3">You have no contacts</td></tr>';
+        this.noItemsTpl = null;
         /**
          * Event manager
          * @type {EventEmitter}
          */
         this.event = EventEmitter();
         /**
-         * Manages countries
-         * @type {CountryList}
+         * The sorting criteria
+         * @type {object}
          */
-        this.countries = new CountryList();
+        this.sortCriteria = {
+            property: 'fullName',
+            desc: false
+        };
 
-        this._registerCountriesHelper();
-
-        // load tpl from file
-        cfg.resources.getTemplate('contactsList/item', true)
-            .then(tpl => {
-                this.itemTpl = tpl;
-                this.draw();
+        this._loadTemplates()
+            .then(loaded => {
+                this.draw(true);
             })
         ;
     }
@@ -61,17 +64,16 @@ module.exports = class ContactsList {
     }
 
     /**
-     * Draws the view
+     * Draws the view content
+     * @param {Boolean} [rebind=false] True if events need to be rebound
      * @return ContactsList
      */
-    draw() {
-        this._getListContainer().html(this._getListContent());
-        this._getItemCountContainer().html(this._getItemCountText());
+    draw(rebind) {
+        this._drawContent();
 
-        this._getContainer()
-            .delegate('.btn.edit-contact', 'click', this._onEditClick.bind(this))
-            .delegate('.btn.delete-contact', 'click', this._onDeleteClick.bind(this))
-        ;
+        if (rebind) {
+            this._bindEvents();
+        }
 
         return this;
     }
@@ -107,12 +109,56 @@ module.exports = class ContactsList {
     }
 
     /**
+     * Invoked when the user clicks on a sortable column
+     * @param {jQuery.Event} evt
+     * @private
+     */
+    _onSortColumnClick(evt) {
+        var column = $(evt.currentTarget);
+        var property = column.data('property');
+        // toggle sort order
+        var desc = this.sortCriteria.property == property && !this.sortCriteria.desc;
+
+        this.sortCriteria = {
+            property: property,
+            desc: desc
+        };
+
+        this._drawContent();
+    }
+
+    /**
+     * Updates the view content
+     * @private
+     */
+    _drawContent() {
+        // draw the list
+        this._getListContainer().html(this._getListContent());
+        // draw the item count
+        this._getItemCountContainer().html(this._getItemCountText());
+        // update the sorting hints
+        this._updateSortingHints();
+    }
+
+    /**
+     * Binds the component events to the view
+     * @private
+     */
+    _bindEvents() {
+        this._getContainer()
+            .delegate('.btn.edit-contact', 'click', this._onEditClick.bind(this))
+            .delegate('.btn.delete-contact', 'click', this._onDeleteClick.bind(this))
+            .delegate('.sort-column', 'click', this._onSortColumnClick.bind(this))
+        ;
+    }
+
+    /**
      * Returns the DOM object that contains the component
      * @returns {jQuery|HTMLElement}
      * @private
      */
     _getContainer() {
-        return $('#contactsList');
+        return $(this.containerId);
     }
 
     /**
@@ -141,7 +187,7 @@ module.exports = class ContactsList {
     _getListContent() {
         if (this.contacts.count > 0) {
             return this.itemTpl({
-                contacts: this.contacts.items
+                contacts: this.contacts.getSortedBy(this.sortCriteria.property, this.sortCriteria.desc)
             });
         } else {
             return this.noItemsTpl;
@@ -160,15 +206,40 @@ module.exports = class ContactsList {
     }
 
     /**
-     * Registers a Handlebars helper in order to display country names
+     * Loads all the component templates
+     * @returns {Promise} Promise that all the templates have been loaded
      * @private
      */
-    _registerCountriesHelper() {
-        Handlebars.registerHelper('countryName', countryCode => {
-            if (typeof countryCode !== 'undefined') {
-                return this.countries.getName(countryCode);
+    _loadTemplates() {
+        var loaded = $.Deferred();
+
+        $.when(
+            cfg.resources.getTemplate('contactsList/noItems', true),
+            cfg.resources.getTemplate('contactsList/item', true)
+        ).done((noItemsTpl, itemTpl) => {
+            this.noItemsTpl = noItemsTpl;
+            this.itemTpl = itemTpl;
+            loaded.resolve(true);
+        });
+
+        return loaded.promise();
+    }
+
+    /**
+     * Updates the sorting indicators on the column titles
+     * @private
+     */
+    _updateSortingHints() {
+        var self = this;
+        this._getContainer().find('.sort-column').each(function(){
+            var el = $(this);
+            var property = el.data('property');
+
+            if (property == self.sortCriteria.property) {
+                el.addClass(self.sortCriteria.desc ? 'sort-desc' : 'sort-asc');
+                el.removeClass(!self.sortCriteria.desc ? 'sort-desc' : 'sort-asc');
             } else {
-                return '';
+                el.removeClass('sort-desc sort-asc');
             }
         });
     }

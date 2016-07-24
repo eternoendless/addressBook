@@ -4,19 +4,21 @@ This is a simple address book manager written in javascript as a single-page, cl
 
 ## Installation
 
-1. Install npm dependencies
+1. Checkout the source code from GitHub
+
+2. Install npm dependencies
 
         $> npm install
         
-2. Run gulp init
+3. Run gulp init
  
         $> gulp init
         
-3. (Optional) Run gulp connect to set up a web server on port 4000
+4. (Optional) Run gulp connect to set up a web server on port 4000
 
         $> gulp connect
         
-4. Done! If you ran gulp connect on step 3, you can now open the application on
+5. Done! If you ran gulp connect on step 4, you can now open the application on
         
         http://localhost:4000
         

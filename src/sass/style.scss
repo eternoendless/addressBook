@@ -1,6 +1,7 @@
 @import "bootstrap";
 @import "bootstrap/theme";
 
+// message when there are no items
 tr.no-items td {
     text-align: center;
     font-style: italic;
@@ -14,10 +15,29 @@ tr.no-items td {
     vertical-align: middle;
 }
 
+// big fat button on the contact list
 .add-contact-big {
     text-align: center;
 
     .btn {
         margin: 10px auto;
     }
+}
+
+// list headers
+.sort-column {
+    @include user-select(none);
+
+    &.sort-desc .glyphicon:after {
+        content: "\e252";
+    }
+
+    &.sort-asc .glyphicon:after {
+        content: "\e253";
+    }
+
+    &:hover {
+        cursor: pointer;
+    }
+
 }

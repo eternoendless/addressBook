@@ -1,19 +1,30 @@
 /**
  * A collection of contacts
+ * @type {ContactsCollection}
  */
 module.exports = class ContactCollection {
 
     constructor() {
         /**
-         * An array of contacts
+         * The list of contacts
          * @type {Contact[]}
          */
         this.items = [];
+        /**
+         * The list of contacts after filtering
+         * @type {Contact[]}
+         */
+        this.filteredItems = [];
         /**
          * The id of the last element
          * @type {number}
          */
         this.lastId = 0;
+        /**
+         * Indicates if the list has been filtered
+         * @type {boolean}
+         */
+        this.isFiltered = false;
         /**
          * The contacts storage manager
          * @type {Object}
@@ -32,7 +43,7 @@ module.exports = class ContactCollection {
 
     /**
      * Deletes a contact
-     * @param contactId
+     * @param contactId Id of the contact to delete
      * @returns {boolean}
      */
     remove(contactId) {
@@ -72,29 +83,69 @@ module.exports = class ContactCollection {
     }
 
     /**
-     * Returns a sorted list
+     * Returns all the contacts
+     * @returns {Contact[]}
+     */
+    getAll() {
+        return this.items;
+    }
+
+    /**
+     * Returns all the contacts, sorted by a property
      * @param property {String} The property to use to sort
      * @param [desc=false] {Boolean} True to sort in descending order
      * @returns {Contact[]}
      */
-    getSortedList(property, desc) {
-        // create a copy of the original collection
-        var collection = this.items.slice(0);
+    getSortedBy(property, desc) {
+        // create a copy of the original item list
+        var items = this._getItems().slice(0);
 
-        collection.sort(function(a, b){
-            if (!a.hasOwnProperty(property) || !b.hasOwnProperty(property)) {
-                throw new Error("Cannot sort because property " + property + " does not exist in at least one of the items in the collection");
-            }
-            if (a[property] > b[property]) {
+        items.sort(function(a, b){
+            var aValue = a[property];
+            var bValue = b[property];
+
+            if (aValue > bValue) {
                 return (desc) ? -1 : 1;
-            } else if (a[property] < b[property]) {
+            } else if (aValue < bValue) {
                 return (desc) ? 1 : -1;
             } else {
                 return 0;
             }
         });
 
-        return collection;
+        return items;
+    }
+
+    /**
+     * Filters the list
+     * @param {String} value The value to look for
+     * @returns {ContactCollection}
+     */
+    filter(value) {
+        var escapedValue = String(value).replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+        var search = new RegExp(escapedValue, 'i');
+
+        this.isFiltered = true;
+
+        this.filteredItems = this.items.filter(function(contact){
+            return (
+                search.test(contact.fullName)
+                || search.test(contact.surname)
+                || search.test(contact.email)
+            );
+        });
+
+        return this;
+    }
+
+    /**
+     * Resets the active filter
+     * @returns {ContactCollection}
+     */
+    resetFilter() {
+        this.isFiltered = false;
+
+        return this;
     }
 
     /**
@@ -134,7 +185,16 @@ module.exports = class ContactCollection {
      * @returns {Number}
      */
     get count() {
-        return this.items.length;
+        return this._getItems().length;
+    }
+
+    /**
+     * Returns the current contact list, taking filtering into account
+     * @returns {Contact[]}
+     * @private
+     */
+    _getItems() {
+        return (this.isFiltered) ? this.filteredItems : this.items;
     }
 
 };

@@ -1,5 +1,9 @@
+var CountryList = require('country-list');
+var list = new CountryList();
+
 /**
  * Contact model
+ * @type {Contact}
  */
 module.exports = class Contact {
 
@@ -16,5 +20,22 @@ module.exports = class Contact {
         this.email = email;
         this.country = country;
         this.id = null;
+    }
+
+    /**
+     * Returns the contact's full name
+     * @returns {string}
+     */
+    get fullName() {
+        return this.name + ' ' + this.surname;
+    }
+
+    /**
+     * Returns the contact's country name
+     * @returns {string}
+     */
+    get countryName() {
+        return (this.country != '') ?
+            list.getName(this.country) : '';
     }
 };

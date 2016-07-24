@@ -8,15 +8,15 @@ module.exports = class ContactEditor {
 
     /**
      *
-     * @param {String} view
-     * @param {Contact} contact
+     * @param {String} editorSelector Selector for the editor element
+     * @param {Contact} contact Contact to edit
      */
-    constructor(view, contact) {
+    constructor(editorSelector, contact) {
         /**
          * Selector for the form DOM element
          * @type {String}
          */
-        this.formSelector = view;
+        this.formSelector = editorSelector;
         /**
          * Contact to edit
          * @type {Contact}
@@ -44,6 +44,7 @@ module.exports = class ContactEditor {
 
     /**
      * Invoked when the user clicks on the save button
+     * @param {jQuery.Event} evt
      * @private
      */
     _onSubmit(evt) {

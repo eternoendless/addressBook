@@ -1,0 +1,1 @@
+<tr class="no-items"><td colspan="4">You have no contacts</td></tr>

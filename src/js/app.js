@@ -8,5 +8,4 @@ $(function(){
     contacts.loadFrom(new ContactsLocalStorage());
 
     window.app = new AddressBookApp(contacts);
-
 });

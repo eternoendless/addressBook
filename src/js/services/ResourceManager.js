@@ -1,5 +1,5 @@
 /**
- * Manages resources (pages and templates)
+ * Manages resources (views and templates)
  * @type {ResourceManager}
  */
 module.exports = class ResourceManager {
@@ -7,12 +7,9 @@ module.exports = class ResourceManager {
     constructor(options) {
         options = options || {};
 
-        this.componentsPath = options.componentsPath || 'pages/components';
         this.templatesPath = options.templatesPath || 'views';
-        this.cmpPrefix = options.cmpPrefix || 'cmp-';
         this.pageContentId = options.pageContentId || '#pageContent';
 
-        this.pageCache = {};
         this.tplCache = {};
     }
 
@@ -35,31 +32,6 @@ module.exports = class ResourceManager {
                 loaded.reject($reason);
             })
         ;
-
-        /*if (typeof self.pageCache[name] !== "undefined") {
-            self._displayPageContent(
-                (parseContent !== null && Handlebars) ?
-                    Handlebars.compile(self.pageCache[name])(parseContent)
-                    : self.pageCache[name]
-            );
-
-            loaded.resolve(true);
-        } else {
-            $.ajax({
-                url: self.templatesPath + '/' + name + '.tpl',
-                dataType: 'html',
-                success: function(content) {
-                    self.pageCache[name] = content;
-                    // include the page
-                    $(self.pageContentId)[0].innerHTML = (parseContent !== null && Handlebars) ?
-                        Handlebars.compile(content)(parseContent) : content;
-                    loaded.resolve(true);
-                },
-                error: function() {
-                    loaded.reject(false);
-                }
-            });
-        }*/
 
         return loaded.promise();
     }
@@ -96,62 +68,6 @@ module.exports = class ResourceManager {
         }
 
         return template.promise();
-    }
-
-    /**
-     * Loads a component and returns a jQuery reference to it
-     * @param {String} componentName Component name
-     * @param {Boolean} [preventLoading=false] If TRUE, don't load the component automatically
-     * @returns {jQuery|null} A reference to the component, or null if it doesn't exist
-     */
-    getComponent(componentName, preventLoading) {
-        var self = this;
-        var cmp = $('#' + self.cmpPrefix + componentName);
-
-        if (cmp.length > 0)
-            return cmp;
-        else if (!preventLoading) {
-            self.loadComponent(componentName);
-            return self.getComponent(componentName, true);
-        }
-        else {
-            return null;
-        }
-    }
-
-    /**
-     * Loads a component
-     * @param {String} componentName Name of the component
-     * @param {String} [parentElement='#pageContent'] The parent element under which the component should be added
-     * @returns {Boolean} TRUE if the component has been loaded
-     */
-    loadComponent(componentName, parentElement) {
-        var self = this;
-        var loaded = false;
-
-        if (!self._componentLoaded(componentName)) {
-            $.ajax({
-                url: self.componentsPath + '/' + componentName + '.component',
-                async: false,
-                dataType: 'html',
-                success: function(content) {
-                    $(content).appendTo(parentElement? $(parentElement).first() : '#pageContent');
-                    loaded = true;
-                }
-            });
-        }
-
-        return loaded;
-    }
-
-    /**
-     * Checks if a component has been loaded and is available
-     * @param {String} componentName Name of the component
-     * @returns {Boolean}
-     */
-    _componentLoaded(componentName) {
-        var self = this;
-        return $('#' + self.cmpPrefix + componentName).length > 0;
     }
 
     /**

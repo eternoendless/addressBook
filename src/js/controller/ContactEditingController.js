@@ -12,11 +12,9 @@ module.exports = class ContactEditingController {
 
     /**
      *
-     * @param {AddressBookApp} app
      * @param {ContactCollection} contacts
-     * @param {Contact|null} contact
      */
-    constructor(app, contacts, contact) {
+    constructor(contacts) {
         /**
          * The collection of contacts
          * @type {ContactCollection}
@@ -82,7 +80,7 @@ module.exports = class ContactEditingController {
                 contact: contact,
                 countries: this.countryListHtml
             })
-                .then($loaded => {
+                .then(loaded => {
                     this._startEditing(contact);
                 })
             ;

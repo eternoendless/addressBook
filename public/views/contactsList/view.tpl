@@ -6,7 +6,7 @@
 
 		<form class="navbar-form navbar-right" role="search">
 			<div class="form-group">
-				<input type="text" class="form-control" placeholder="Search contacts...">
+				<input type="text" class="form-control" id="search" placeholder="Search contacts...">
 			</div>
 		</form>
 	</div>
@@ -23,9 +23,18 @@
 	<table class="table" id="contactsList">
 		<thead>
 		<tr>
-			<th>Name</th>
-			<th>Email</th>
-			<th>Country</th>
+			<th class="sort-column" data-property="fullName">
+				Name
+				<span class="glyphicon" aria-hidden="true"></span>
+			</th>
+			<th class="sort-column" data-property="email">
+				Email
+				<span class="glyphicon" aria-hidden="true"></span>
+			</th>
+			<th class="sort-column" data-property="countryName">
+				Country
+				<span class="glyphicon" aria-hidden="true"></span>
+			</th>
 			<th></th>
 		</tr>
 		</thead>
