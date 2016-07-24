@@ -1,5 +1,6 @@
 // based on https://omarfouad.com/
 var gulp = require('gulp');
+var gulpsync = require('gulp-sync')(gulp);
 var notify = require('gulp-notify');
 var connect = require('gulp-connect');
 var source = require('vinyl-source-stream');
@@ -31,8 +32,8 @@ gulp.task('css', function() {
     return sass(config.sassPath + '/**/*.scss', {
         style: 'compressed',
         loadPath: [
-            config.sassPath,
-            config.bowerDir + '/bootstrap-sass-official/assets/stylesheets'
+            config.bowerDir + '/bootstrap-sass-official/assets/stylesheets',
+            config.sassPath
         ]})
         .on("error", notify.onError(function (error) {
             return "Error: " + error.message;
@@ -81,6 +82,6 @@ gulp.task('copy-files', function() {
         .pipe(gulp.dest(config.publicPath + '/fonts/bootstrap/'));
 });
 
-gulp.task('init', ['bower', 'copy-files', 'browserify', 'css']);
+gulp.task('init', gulpsync.sync(['bower', ['copy-files', 'browserify', 'css']]));
 
 gulp.task('default', ['connect', 'watch']);
